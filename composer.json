@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Apurbajnu\\Abtest\\": "src/"
+            "Apurbajnu\\abtest\\": "src/"
         }
     },
     "authors": [
@@ -40,10 +40,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Apurbajnu\\Abtest\\AbtestServiceProvider"
+                "Apurbajnu\\abtest\\AbtestServiceProvider"
             ],
             "aliases": {
-                "Abtest": "Apurbajnu\\Abtest\\AbtestFacade"
+                "Abtest": "Apurbajnu\\abtest\\AbtestFacade"
             }
         }
     }

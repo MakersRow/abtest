@@ -1,10 +1,9 @@
 <?php
 
-namespace Apurbajnu\Abtest;
+namespace Apurbajnu\abtest;
 
-use Apurbajnu\Abtest\Commands\ReportCommand;
-use Apurbajnu\Abtest\Commands\ResetCommand;
-use Apurbajnu\Abtest\Abtest;
+use Apurbajnu\abtest\Commands\ReportCommand;
+use Apurbajnu\abtest\Commands\ResetCommand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -17,7 +16,8 @@ class AbtestServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-         if ($this->app->runningInConsole()) {
+
+        if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('ab-testing.php'),
             ], 'config');
@@ -34,7 +34,6 @@ class AbtestServiceProvider extends ServiceProvider
 
         Blade::if('ab', function ($experiment) {
             return app(Abtest::class)->isExperiment($experiment);
-        
         });
     }
 
