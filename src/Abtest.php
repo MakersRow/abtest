@@ -32,11 +32,11 @@ class Abtest
         $configExperiments = config('ab-testing.experiments');
         $configGoals = config('ab-testing.goals');
 
-        if (! count($configExperiments)) {
+        if (!count($configExperiments)) {
             throw InvalidConfiguration::noExperiment();
         }
 
-        if (count($configExperiments) !== count(array_unique($configExperiments))) {
+        if (count($configExperiments) !== count(array_unique(array_keys($configExperiments)))) {
             throw InvalidConfiguration::experiment();
         }
 
@@ -44,9 +44,9 @@ class Abtest
             throw InvalidConfiguration::goal();
         }
 
-        foreach ($configExperiments as $configExperiment) {
+        foreach ($configExperiments as $nameExperiment => $configExperiment) {
             $this->experiments[] = $experiment = Experiment::with('goals')->firstOrCreate([
-                'name' => $configExperiment,
+                'name' => $nameExperiment,
             ], [
                 'visitors' => 0,
             ]);
@@ -110,9 +110,28 @@ class Abtest
      */
     protected function getNextExperiment()
     {
-        $sorted = $this->experiments->sortBy('visitors');
+        $experiments = config('ab-testing.experiments');
+        $arrayExpGroup = [];
 
-        return $sorted->first();
+        $sumPercentages = array_sum(array_map(function ($expProbability) {
+            if (is_int($expProbability) || is_float($expProbability)) {
+                return abs($expProbability);
+            }
+        }, $experiments));
+
+        if ($sumPercentages < 99 || $sumPercentages > 100) {
+            throw InvalidConfiguration::experimentsTotalPercentage();
+        }
+
+        foreach ($experiments as $expName => $expProbability) {
+            for ($i = 0; $i < $expProbability; $i++) {
+                $arrayExpGroup[] = $expName;
+            }
+        }
+
+        $expNameSelected = $arrayExpGroup[array_rand($arrayExpGroup)];
+
+        return Experiment::where('name', $expNameSelected)->first();
     }
 
     /**
@@ -125,7 +144,7 @@ class Abtest
     {
         $this->pageView();
 
-        if (! $experiment = $this->getExperiment()) {
+        if (!$experiment = $this->getExperiment()) {
             return false;
         }
 
@@ -142,13 +161,13 @@ class Abtest
     {
         $this->pageView();
 
-        if (! $this->getExperiment()) {
+        if (!$this->getExperiment()) {
             return false;
         }
 
         $goal = $this->getExperiment()->goals->where('name', $goal)->first();
 
-        if (! $goal) {
+        if (!$goal) {
             return false;
         }
 
@@ -181,7 +200,7 @@ class Abtest
      */
     public function getCompletedGoals()
     {
-        if (! session(self::SESSION_KEY_GOALS)) {
+        if (!session(self::SESSION_KEY_GOALS)) {
             return false;
         }
 

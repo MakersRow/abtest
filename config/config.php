@@ -6,9 +6,18 @@ return [
     | Experiments
     |--------------------------------------------------------------------------
     |
-    | A list of experiment identifiers.
+    | A list of experiment identifiers followed by its probability percentage
+    | number.
     |
-    | Example: ['big-logo', 'small-buttons']
+    | Note: The sum of all percentages should be between 99 and 100
+    |
+    | *Is highly recommended to reset the ab:report stats after any change to
+    |  the experiments*
+    |
+    | Example: [
+    |   'big-logo' => 60,
+    |   'small-buttons' => 40
+    |   ]
     |
     */
     'experiments' => [],
